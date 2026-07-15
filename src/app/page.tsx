@@ -16,82 +16,94 @@ interface Channel {
   id: string;
   name: string;
   logo: string;
-  live: number;
   region: "usa" | "israel" | "europe";
   color: string;
 }
 
-// ─── DATA ───
+type Region = "usa" | "israel" | "europe";
+type Screen = "splash" | "auth" | "country" | "browse" | "chat" | "profile";
+
+// ─── CHANNELS ───
 const CHANNELS: Channel[] = [
-  // USA
-  { id: "nbc", name: "NBC", logo: "📺", live: 342, region: "usa", color: "#3B82F6" },
-  { id: "cbs", name: "CBS", logo: "👁️", live: 189, region: "usa", color: "#6366F1" },
-  { id: "abc", name: "ABC", logo: "🔤", live: 256, region: "usa", color: "#F59E0B" },
-  { id: "fox", name: "FOX", logo: "🦊", live: 412, region: "usa", color: "#EF4444" },
-  { id: "hbo", name: "HBO", logo: "🎬", live: 891, region: "usa", color: "#8B5CF6" },
-  { id: "cnn", name: "CNN", logo: "📰", live: 1203, region: "usa", color: "#DC2626" },
-  { id: "espn", name: "ESPN", logo: "⚽", live: 2105, region: "usa", color: "#10B981" },
-  { id: "netflix", name: "Netflix Live", logo: "🎥", live: 3420, region: "usa", color: "#E11D48" },
-  { id: "hulu", name: "Hulu", logo: "💚", live: 567, region: "usa", color: "#22C55E" },
-  { id: "amc", name: "AMC", logo: "🎞️", live: 134, region: "usa", color: "#F97316" },
-  // Israel
-  { id: "ch12", name: "Channel 12", logo: "1️⃣2️⃣", live: 1890, region: "israel", color: "#3B82F6" },
-  { id: "ch13", name: "Channel 13", logo: "1️⃣3️⃣", live: 1245, region: "israel", color: "#F97316" },
-  { id: "ch11", name: "KAN 11", logo: "📡", live: 432, region: "israel", color: "#8B5CF6" },
-  { id: "hot", name: "HOT", logo: "🔥", live: 678, region: "israel", color: "#EF4444" },
-  { id: "yes", name: "YES", logo: "✅", live: 521, region: "israel", color: "#22C55E" },
-  { id: "sport5", name: "Sport 5", logo: "🏀", live: 2340, region: "israel", color: "#F59E0B" },
-  // Europe
-  { id: "bbc", name: "BBC", logo: "🇬🇧", live: 4521, region: "europe", color: "#1D4ED8" },
-  { id: "itv", name: "ITV", logo: "📺", live: 987, region: "europe", color: "#6366F1" },
-  { id: "sky", name: "Sky", logo: "☁️", live: 2341, region: "europe", color: "#0EA5E9" },
-  { id: "ard", name: "ARD", logo: "🇩🇪", live: 1123, region: "europe", color: "#3B82F6" },
-  { id: "zdf", name: "ZDF", logo: "🇩🇪", live: 876, region: "europe", color: "#F97316" },
-  { id: "france2", name: "France 2", logo: "🇫🇷", live: 654, region: "europe", color: "#EF4444" },
-  { id: "rai", name: "RAI", logo: "🇮🇹", live: 543, region: "europe", color: "#22C55E" },
+  { id: "nbc", name: "NBC", logo: "📺", region: "usa", color: "#3B82F6" },
+  { id: "cbs", name: "CBS", logo: "👁️", region: "usa", color: "#6366F1" },
+  { id: "abc", name: "ABC", logo: "🔤", region: "usa", color: "#F59E0B" },
+  { id: "fox", name: "FOX", logo: "🦊", region: "usa", color: "#EF4444" },
+  { id: "hbo", name: "HBO", logo: "🎬", region: "usa", color: "#8B5CF6" },
+  { id: "cnn", name: "CNN", logo: "📰", region: "usa", color: "#DC2626" },
+  { id: "espn", name: "ESPN", logo: "⚽", region: "usa", color: "#10B981" },
+  { id: "netflix", name: "Netflix Live", logo: "🎥", region: "usa", color: "#E11D48" },
+  { id: "hulu", name: "Hulu", logo: "💚", region: "usa", color: "#22C55E" },
+  { id: "amc", name: "AMC", logo: "🎞️", region: "usa", color: "#F97316" },
+  { id: "ch12", name: "Channel 12", logo: "1️⃣2️⃣", region: "israel", color: "#3B82F6" },
+  { id: "ch13", name: "Channel 13", logo: "1️⃣3️⃣", region: "israel", color: "#F97316" },
+  { id: "kan11", name: "KAN 11", logo: "📡", region: "israel", color: "#8B5CF6" },
+  { id: "hot", name: "HOT", logo: "🔥", region: "israel", color: "#EF4444" },
+  { id: "yes-tv", name: "YES", logo: "✅", region: "israel", color: "#22C55E" },
+  { id: "sport5", name: "Sport 5", logo: "🏀", region: "israel", color: "#F59E0B" },
+  { id: "bbc", name: "BBC", logo: "🇬🇧", region: "europe", color: "#1D4ED8" },
+  { id: "itv", name: "ITV", logo: "📺", region: "europe", color: "#6366F1" },
+  { id: "sky", name: "Sky", logo: "☁️", region: "europe", color: "#0EA5E9" },
+  { id: "ard", name: "ARD", logo: "🇩🇪", region: "europe", color: "#3B82F6" },
+  { id: "zdf", name: "ZDF", logo: "🇩🇪", region: "europe", color: "#F97316" },
+  { id: "france2", name: "France 2", logo: "🇫🇷", region: "europe", color: "#EF4444" },
+  { id: "rai", name: "RAI", logo: "🇮🇹", region: "europe", color: "#22C55E" },
 ];
 
 const AVATARS = ["😎", "🎭", "🔥", "💀", "👑", "🎪", "🌟", "🎯", "🦄", "🐱", "🎸", "🏄", "🤖", "👻", "🎩"];
-
-const FAKE_USERS = [
-  "mike_LA", "sarah_nyc", "tv_junkie", "couch_king", "binge_queen",
-  "remote_warrior", "channel_surfer", "night_owl", "drama_lover", "plot_twist",
-  "snack_break", "rerun_rick", "prime_timer", "stream_beast", "cliffhanger",
-  "popcorn_pete", "sofa_sam", "episode_eli", "series_stan", "pilot_patty",
-];
-
-const FAKE_MESSAGES = [
-  "OMG did you just see that?! 😱", "This show is absolute 🔥🔥🔥",
-  "I called it from the first episode", "Plot twist of the year!!",
-  "Who else is watching this right now?", "This character is SO annoying 😤",
-  "Best episode of the season hands down", "I can't believe they did that",
-  "The writing this season is insane", "Anyone else crying rn? 😭",
-  "YOOOOO what just happened", "This is way better than I expected",
-  "I'm literally shook", "MVP performance right there 👏",
-  "OK but why is this so good", "Wait what did I miss??",
-  "This deserves an Emmy tbh", "My jaw just hit the floor",
-  "Every week this show gets better", "Lol the comments here are killing me 😂",
-  "Who's the villain here honestly", "That scene was everything",
-  "I need next episode NOW", "This is peak television",
-  "Can we talk about that outfit tho 👀", "The soundtrack is incredible",
-  "I've been waiting all week for this", "Goosebumps!! Literal goosebumps",
-];
-
 const QUICK_EMOJIS = ["🔥", "😂", "😱", "👏", "❤️", "💀"];
 
-type Screen = "splash" | "auth" | "browse" | "chat" | "profile";
+// ─── LOCALIZED SEED MESSAGES ───
+const SEED_MESSAGES: Record<Region, { user: string; text: string }[]> = {
+  usa: [
+    { user: "mike_LA", text: "OMG did you just see that?! 😱" },
+    { user: "sarah_nyc", text: "This show is absolute 🔥🔥🔥" },
+    { user: "couch_king", text: "I called it from the first episode" },
+    { user: "binge_queen", text: "Plot twist of the year!!" },
+    { user: "tv_junkie", text: "Who else is watching this right now?" },
+    { user: "remote_warrior", text: "Best episode of the season hands down" },
+    { user: "night_owl", text: "The writing this season is insane 🤯" },
+    { user: "stream_beast", text: "YOOOOO what just happened" },
+    { user: "popcorn_pete", text: "This deserves an Emmy tbh" },
+    { user: "cliffhanger", text: "Every week this show gets better 👏" },
+  ],
+  israel: [
+    { user: "אורי_תא", text: "אחלה פרק!! לא מאמין מה קרה עכשיו 😱" },
+    { user: "מיכל_ירושלים", text: "הסדרה הזאת פשוט מטורפת 🔥🔥" },
+    { user: "דני_חיפה", text: "ידעתי מהרגע הראשון שזה יקרה" },
+    { user: "שירה_רמתגן", text: "מי עוד צופה עכשיו? תגיבו!" },
+    { user: "יוסי_באר_שבע", text: "הפרק הכי טוב העונה בלי ספק 👑" },
+    { user: "נועה_הרצליה", text: "אני בשוק מהתפנית הזאת" },
+    { user: "איתי_נתניה", text: "השחקנים פה משחקים ברמה אחרת" },
+    { user: "רוני_ראשון", text: "מחכה שבוע שלם לפרק הזה 😂" },
+    { user: "גל_אשדוד", text: "וואלה תכל'ס סדרה שווה!!" },
+    { user: "תמר_פתח_תקווה", text: "הסוף הזה!!! 😮 לא ייאמן" },
+  ],
+  europe: [
+    { user: "james_london", text: "Brilliant episode, absolutely brilliant! 🇬🇧" },
+    { user: "hans_berlin", text: "Diese Folge ist unglaublich! 🔥" },
+    { user: "marie_paris", text: "C'est incroyable cette série! 😱" },
+    { user: "luca_roma", text: "Mamma mia che puntata!! 🇮🇹" },
+    { user: "emma_dublin", text: "Can't believe what just happened! 👏" },
+    { user: "carlos_madrid", text: "¡Qué episodio tan increíble! 🔥🔥" },
+    { user: "sophie_amsterdam", text: "This show keeps getting better wow" },
+    { user: "felix_munich", text: "Wahnsinn! Beste Serie 2026 💯" },
+    { user: "chloe_lyon", text: "Je suis choquée par la fin 😮" },
+    { user: "marco_milan", text: "Ogni settimana migliora! Fantastico 👑" },
+  ],
+};
 
 // ─── APP ───
 export default function CommentV() {
   const [screen, setScreen] = useState<Screen>("splash");
   const [username, setUsername] = useState("");
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [signUpName, setSignUpName] = useState("");
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
-  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [signinEmail, setSigninEmail] = useState("");
   const [signinPassword, setSigninPassword] = useState("");
-  const [selectedRegion, setSelectedRegion] = useState<"usa" | "israel" | "europe">("usa");
+  const [selectedRegion, setSelectedRegion] = useState<Region>("usa");
   const [activeChannel, setActiveChannel] = useState<Channel | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
@@ -102,7 +114,10 @@ export default function CommentV() {
   const [searchQuery, setSearchQuery] = useState("");
   const chatRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const msgIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const presenceRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastTimeRef = useRef(0);
+  const seenIdsRef = useRef<Set<string>>(new Set());
 
   // Splash auto-advance
   useEffect(() => {
@@ -117,95 +132,192 @@ export default function CommentV() {
     }
   }, [messages]);
 
-  // Simulate live count changes
-  useEffect(() => {
-    if (!activeChannel) return;
-    setLiveCount(activeChannel.live);
-    const interval = setInterval(() => {
-      setLiveCount((c) => c + Math.floor(Math.random() * 5) - 2);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [activeChannel]);
+  // ─── REAL-TIME POLLING ───
+  const startPolling = useCallback((channelId: string) => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    lastTimeRef.current = 0;
+    seenIdsRef.current = new Set();
 
-  // Generate fake incoming messages
-  const startFakeMessages = useCallback(() => {
-    if (msgIntervalRef.current) clearInterval(msgIntervalRef.current);
-    // Initial batch
-    const initial: Message[] = Array.from({ length: 6 }, (_, i) => ({
-      id: `init-${i}`,
-      user: FAKE_USERS[Math.floor(Math.random() * FAKE_USERS.length)],
-      avatar: AVATARS[Math.floor(Math.random() * AVATARS.length)],
-      text: FAKE_MESSAGES[Math.floor(Math.random() * FAKE_MESSAGES.length)],
-      time: Date.now() - (6 - i) * 4000,
-    }));
-    setMessages(initial);
+    // Initial fetch
+    fetch(`/api/messages?channel=${channelId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.messages?.length) {
+          const msgs = data.messages.map((m: Message) => ({ ...m, isMe: m.user === username }));
+          msgs.forEach((m: Message) => seenIdsRef.current.add(m.id));
+          setMessages(msgs);
+          lastTimeRef.current = Math.max(...msgs.map((m: Message) => m.time));
+        }
+      })
+      .catch(() => {});
 
-    msgIntervalRef.current = setInterval(() => {
-      const msg: Message = {
-        id: `msg-${Date.now()}-${Math.random()}`,
-        user: FAKE_USERS[Math.floor(Math.random() * FAKE_USERS.length)],
-        avatar: AVATARS[Math.floor(Math.random() * AVATARS.length)],
-        text: FAKE_MESSAGES[Math.floor(Math.random() * FAKE_MESSAGES.length)],
-        time: Date.now(),
-      };
-      setMessages((prev) => [...prev.slice(-50), msg]);
-    }, 2000 + Math.random() * 3000);
+    // Poll every 1.5s
+    pollRef.current = setInterval(() => {
+      fetch(`/api/messages?channel=${channelId}&since=${lastTimeRef.current}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.messages?.length) {
+            const newMsgs = data.messages.filter(
+              (m: Message) => !seenIdsRef.current.has(m.id)
+            ).map((m: Message) => ({ ...m, isMe: m.user === username }));
+
+            if (newMsgs.length > 0) {
+              newMsgs.forEach((m: Message) => seenIdsRef.current.add(m.id));
+              setMessages((prev) => [...prev.slice(-80), ...newMsgs]);
+              lastTimeRef.current = Math.max(...newMsgs.map((m: Message) => m.time));
+            }
+          }
+        })
+        .catch(() => {});
+    }, 1500);
+  }, [username]);
+
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+    if (presenceRef.current) { clearInterval(presenceRef.current); presenceRef.current = null; }
   }, []);
 
-  const stopFakeMessages = useCallback(() => {
-    if (msgIntervalRef.current) {
-      clearInterval(msgIntervalRef.current);
-      msgIntervalRef.current = null;
+  // ─── PRESENCE ───
+  const startPresence = useCallback((channelId: string) => {
+    if (presenceRef.current) clearInterval(presenceRef.current);
+
+    const heartbeat = () => {
+      fetch("/api/presence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ channel: channelId, user: username }),
+      })
+        .then((r) => r.json())
+        .then((data) => setLiveCount(data.count || 1))
+        .catch(() => {});
+    };
+
+    heartbeat();
+    presenceRef.current = setInterval(heartbeat, 8000);
+  }, [username]);
+
+  // ─── SEED DEMO MESSAGES ───
+  const seedMessages = useCallback(async (channelId: string, region: Region) => {
+    // Check if channel already has messages
+    try {
+      const res = await fetch(`/api/messages?channel=${channelId}`);
+      const data = await res.json();
+      if (data.messages?.length > 0) return; // already seeded
+    } catch {
+      // continue to seed
+    }
+
+    const seeds = SEED_MESSAGES[region];
+    const shuffled = [...seeds].sort(() => Math.random() - 0.5).slice(0, 5);
+
+    for (const seed of shuffled) {
+      await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          channel: channelId,
+          user: seed.user,
+          avatar: AVATARS[Math.floor(Math.random() * AVATARS.length)],
+          text: seed.text,
+        }),
+      });
+      // Small delay between seeds
+      await new Promise((r) => setTimeout(r, 100));
     }
   }, []);
 
-  const enterChannel = (ch: Channel) => {
+  const enterChannel = async (ch: Channel) => {
     setActiveChannel(ch);
     setScreen("chat");
-    startFakeMessages();
+    await seedMessages(ch.id, ch.region);
+    startPolling(ch.id);
+    startPresence(ch.id);
   };
 
   const leaveChannel = () => {
-    stopFakeMessages();
+    stopPolling();
     setActiveChannel(null);
     setMessages([]);
     setScreen("browse");
   };
 
-  const sendMessage = () => {
-    if (!inputText.trim()) return;
-    const msg: Message = {
-      id: `me-${Date.now()}`,
+  const sendMessage = async () => {
+    if (!inputText.trim() || !activeChannel) return;
+    const text = inputText.trim();
+    setInputText("");
+    inputRef.current?.focus();
+
+    // Optimistic local add
+    const localMsg: Message = {
+      id: `local-${Date.now()}`,
       user: username,
       avatar: myAvatar,
-      text: inputText.trim(),
+      text,
       time: Date.now(),
       isMe: true,
     };
-    setMessages((prev) => [...prev.slice(-50), msg]);
+    seenIdsRef.current.add(localMsg.id);
+    setMessages((prev) => [...prev.slice(-80), localMsg]);
     setTotalComments((c) => c + 1);
-    setInputText("");
-    inputRef.current?.focus();
+
+    // Send to server
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          channel: activeChannel.id,
+          user: username,
+          avatar: myAvatar,
+          text,
+        }),
+      });
+      const data = await res.json();
+      if (data.message) {
+        seenIdsRef.current.add(data.message.id);
+        // Update the last time so we don't re-fetch our own message
+        lastTimeRef.current = Math.max(lastTimeRef.current, data.message.time);
+      }
+    } catch {
+      // Message still shows locally
+    }
   };
 
   const sendEmoji = (emoji: string) => {
-    const msg: Message = {
-      id: `me-${Date.now()}`,
+    setInputText("");
+    const localMsg: Message = {
+      id: `local-${Date.now()}`,
       user: username,
       avatar: myAvatar,
       text: emoji,
       time: Date.now(),
       isMe: true,
     };
-    setMessages((prev) => [...prev.slice(-50), msg]);
+    seenIdsRef.current.add(localMsg.id);
+    setMessages((prev) => [...prev.slice(-80), localMsg]);
     setTotalComments((c) => c + 1);
+
     // Float animation
     const floatId = `float-${Date.now()}`;
     const x = 20 + Math.random() * 60;
     setFloatingEmojis((prev) => [...prev, { id: floatId, emoji, x }]);
-    setTimeout(() => {
-      setFloatingEmojis((prev) => prev.filter((e) => e.id !== floatId));
-    }, 1000);
+    setTimeout(() => setFloatingEmojis((prev) => prev.filter((e) => e.id !== floatId)), 1000);
+
+    // Send to server
+    if (activeChannel) {
+      fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          channel: activeChannel.id,
+          user: username,
+          avatar: myAvatar,
+          text: emoji,
+        }),
+      }).then((r) => r.json()).then((data) => {
+        if (data.message) seenIdsRef.current.add(data.message.id);
+      }).catch(() => {});
+    }
   };
 
   const timeAgo = (ts: number) => {
@@ -214,6 +326,13 @@ export default function CommentV() {
     if (s < 60) return `${s}s`;
     return `${Math.floor(s / 60)}m`;
   };
+
+  // Re-render time-ago every 5 seconds
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((x) => x + 1), 5000);
+    return () => clearInterval(t);
+  }, []);
 
   const filteredChannels = CHANNELS.filter(
     (ch) =>
@@ -229,7 +348,7 @@ export default function CommentV() {
       if (!signinEmail.trim() || !signinPassword.trim()) return;
       setUsername(signinEmail.split("@")[0]);
     }
-    setScreen("browse");
+    setScreen("country");
   };
 
   // ─── SPLASH ───
@@ -257,7 +376,6 @@ export default function CommentV() {
     return (
       <div className="h-full flex flex-col bg-bg-primary safe-top safe-bottom overflow-y-auto">
         <div className="flex-1 flex flex-col items-center justify-center px-8 py-12">
-          {/* Logo */}
           <div className="animate-slide-up mb-2">
             <div className="text-5xl mb-3 text-center">💬</div>
             <h1 className="text-3xl font-bold text-center text-text-primary tracking-tight">
@@ -268,7 +386,6 @@ export default function CommentV() {
             </p>
           </div>
 
-          {/* Auth Toggle */}
           <div className="flex bg-bg-card rounded-xl p-1 mt-8 mb-6 w-full max-w-xs animate-slide-up stagger-1">
             <button
               onClick={() => setAuthMode("signin")}
@@ -286,7 +403,6 @@ export default function CommentV() {
             </button>
           </div>
 
-          {/* Form */}
           <div className="w-full max-w-xs space-y-3 animate-slide-up stagger-2">
             {authMode === "signup" && (
               <input
@@ -324,8 +440,53 @@ export default function CommentV() {
           <p className="text-text-muted text-xs mt-6 text-center animate-slide-up stagger-3">
             {authMode === "signup"
               ? "By joining, you agree to keep it fun and respectful."
-              : "Don't have an account? Switch to Create Account."}
+              : "Don\u0027t have an account? Switch to Create Account."}
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── COUNTRY SELECTION ───
+  if (screen === "country") {
+    const countries: { key: Region; flag: string; name: string; desc: string }[] = [
+      { key: "usa", flag: "🇺🇸", name: "United States", desc: "NBC, CBS, FOX, HBO, ESPN & more" },
+      { key: "israel", flag: "🇮🇱", name: "Israel", desc: "Channel 12, 13, KAN, HOT, YES & more" },
+      { key: "europe", flag: "🇪🇺", name: "Europe", desc: "BBC, Sky, ARD, France 2, RAI & more" },
+    ];
+
+    return (
+      <div className="h-full flex flex-col bg-bg-primary safe-top safe-bottom">
+        <div className="flex-1 flex flex-col items-center justify-center px-6">
+          <div className="animate-slide-up mb-8 text-center">
+            <div className="text-4xl mb-3">🌍</div>
+            <h1 className="text-2xl font-bold text-text-primary">Where are you watching?</h1>
+            <p className="text-text-secondary text-sm mt-2">Select your country to see local channels</p>
+          </div>
+
+          <div className="w-full max-w-sm space-y-3">
+            {countries.map((c, i) => (
+              <button
+                key={c.key}
+                onClick={() => {
+                  setSelectedRegion(c.key);
+                  setScreen("browse");
+                }}
+                className={`w-full flex items-center gap-4 bg-bg-card border border-border rounded-2xl p-5
+                           active:scale-[0.97] active:border-accent/50 transition-all cursor-pointer
+                           animate-slide-up stagger-${i + 1}`}
+              >
+                <div className="text-4xl">{c.flag}</div>
+                <div className="text-left flex-1">
+                  <div className="font-bold text-text-primary">{c.name}</div>
+                  <div className="text-xs text-text-secondary mt-0.5">{c.desc}</div>
+                </div>
+                <svg className="w-5 h-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -337,11 +498,7 @@ export default function CommentV() {
       <div className="h-full flex flex-col bg-bg-primary relative">
         {/* Floating emojis */}
         {floatingEmojis.map((fe) => (
-          <div
-            key={fe.id}
-            className="emoji-float text-3xl z-50"
-            style={{ left: `${fe.x}%`, bottom: "120px" }}
-          >
+          <div key={fe.id} className="emoji-float text-3xl z-50" style={{ left: `${fe.x}%`, bottom: "120px" }}>
             {fe.emoji}
           </div>
         ))}
@@ -358,22 +515,29 @@ export default function CommentV() {
             </button>
             <div className="flex items-center gap-2 bg-bg-card/80 px-3 py-1.5 rounded-full">
               <div className="live-dot" />
-              <span className="text-xs font-medium text-live-red">{liveCount.toLocaleString()} live</span>
+              <span className="text-xs font-medium text-live-red">
+                {liveCount > 0 ? `${liveCount} live` : "connecting..."}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Messages */}
         <div ref={chatRef} className="flex-1 chat-scroll px-4 pt-3 pb-2">
-          {messages.map((msg, i) => (
+          {messages.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-full text-center animate-fade">
+              <div className="text-4xl mb-3">💬</div>
+              <p className="text-text-secondary text-sm">Loading chat...</p>
+            </div>
+          )}
+          {messages.map((msg) => (
             <div
               key={msg.id}
               className={`flex gap-2.5 mb-3 animate-msg ${msg.isMe ? "flex-row-reverse" : ""}`}
-              style={{ animationDelay: `${Math.min(i * 0.03, 0.2)}s` }}
             >
               <div className="text-xl flex-shrink-0 mt-0.5">{msg.avatar}</div>
               <div className={`max-w-[75%] ${msg.isMe ? "items-end" : ""}`}>
-                <div className="flex items-center gap-2 mb-0.5">
+                <div className={`flex items-center gap-2 mb-0.5 ${msg.isMe ? "flex-row-reverse" : ""}`}>
                   <span className={`text-xs font-semibold ${msg.isMe ? "text-accent" : "text-text-secondary"}`}>
                     {msg.isMe ? "you" : msg.user}
                   </span>
@@ -438,13 +602,11 @@ export default function CommentV() {
   if (screen === "profile") {
     return (
       <div className="h-full flex flex-col bg-bg-primary">
-        {/* Header */}
         <div className="safe-top px-4 pt-4 pb-2">
           <h1 className="text-xl font-bold text-text-primary">Profile</h1>
         </div>
 
-        <div className="flex-1 px-4 overflow-y-auto pb-24">
-          {/* Avatar & Name */}
+        <div className="flex-1 px-4 overflow-y-auto pb-24 chat-scroll">
           <div className="flex flex-col items-center mt-6 mb-8 animate-slide-up">
             <div className="w-20 h-20 bg-bg-card rounded-full flex items-center justify-center text-4xl mb-3 border-2 border-accent">
               {myAvatar}
@@ -453,7 +615,6 @@ export default function CommentV() {
             <p className="text-text-secondary text-sm">@{username.toLowerCase().replace(/\s/g, "_")}</p>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-3 gap-3 mb-8 animate-slide-up stagger-1">
             <div className="bg-bg-card rounded-xl p-4 text-center">
               <div className="text-2xl font-bold text-accent">{totalComments}</div>
@@ -469,7 +630,6 @@ export default function CommentV() {
             </div>
           </div>
 
-          {/* Badge */}
           <div className="bg-bg-card rounded-xl p-4 mb-4 flex items-center gap-4 animate-slide-up stagger-2">
             <div className="text-3xl">🏆</div>
             <div>
@@ -486,21 +646,29 @@ export default function CommentV() {
             </div>
           </div>
 
-          {/* Sign Out */}
+          {/* Change Country */}
+          <button
+            onClick={() => setScreen("country")}
+            className="w-full py-3 bg-bg-card border border-border rounded-xl text-text-primary text-sm font-medium
+                       mt-2 active:scale-[0.97] transition-transform cursor-pointer animate-slide-up stagger-4 flex items-center justify-center gap-2"
+          >
+            🌍 Change Country
+          </button>
+
           <button
             onClick={() => {
               setUsername("");
               setScreen("auth");
               setTotalComments(0);
+              stopPolling();
             }}
             className="w-full py-3 bg-bg-card border border-border rounded-xl text-live-red text-sm font-medium
-                       mt-6 active:scale-[0.97] transition-transform cursor-pointer animate-slide-up stagger-4"
+                       mt-3 active:scale-[0.97] transition-transform cursor-pointer animate-slide-up stagger-5"
           >
             Sign Out
           </button>
         </div>
 
-        {/* Tab Bar */}
         <TabBar screen={screen} onNavigate={setScreen} />
       </div>
     );
@@ -509,35 +677,31 @@ export default function CommentV() {
   // ─── BROWSE ───
   return (
     <div className="h-full flex flex-col bg-bg-primary">
-      {/* Header */}
       <div className="safe-top px-4 pt-4 pb-2">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-bold text-text-primary animate-fade">
             💬 Comment<span className="text-accent">V</span>
           </h1>
-          <div className="flex items-center gap-1.5 bg-bg-card px-2.5 py-1 rounded-full">
-            <div className="live-dot" />
-            <span className="text-[11px] text-text-secondary font-medium">
-              {CHANNELS.reduce((s, c) => s + c.live, 0).toLocaleString()} watching
-            </span>
-          </div>
+          <button
+            onClick={() => setScreen("country")}
+            className="text-lg cursor-pointer active:scale-90 transition-transform"
+          >
+            {selectedRegion === "usa" ? "🇺🇸" : selectedRegion === "israel" ? "🇮🇱" : "🇪🇺"}
+          </button>
         </div>
 
         {/* Region Tabs */}
         <div className="flex gap-2 mb-3 animate-slide-up stagger-1">
           {([
-            { key: "usa" as const, label: "🇺🇸 USA" },
-            { key: "israel" as const, label: "🇮🇱 Israel" },
-            { key: "europe" as const, label: "🇪🇺 Europe" },
+            { key: "usa" as Region, label: "🇺🇸 USA" },
+            { key: "israel" as Region, label: "🇮🇱 Israel" },
+            { key: "europe" as Region, label: "🇪🇺 Europe" },
           ]).map(({ key, label }) => (
             <button
               key={key}
               onClick={() => { setSelectedRegion(key); setSearchQuery(""); }}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all cursor-pointer
-                ${selectedRegion === key
-                  ? "bg-accent text-white"
-                  : "bg-bg-card text-text-secondary"
-                }`}
+                ${selectedRegion === key ? "bg-accent text-white" : "bg-bg-card text-text-secondary"}`}
             >
               {label}
             </button>
@@ -573,7 +737,7 @@ export default function CommentV() {
                 <div className="text-3xl">{ch.logo}</div>
                 <div className="flex items-center gap-1">
                   <div className="live-dot" style={{ width: 6, height: 6 }} />
-                  <span className="text-[10px] text-live-red font-medium">{ch.live.toLocaleString()}</span>
+                  <span className="text-[10px] text-live-red font-medium">LIVE</span>
                 </div>
               </div>
               <div className="font-semibold text-text-primary text-sm">{ch.name}</div>
@@ -583,7 +747,6 @@ export default function CommentV() {
         </div>
       </div>
 
-      {/* Tab Bar */}
       <TabBar screen={screen} onNavigate={setScreen} />
     </div>
   );
