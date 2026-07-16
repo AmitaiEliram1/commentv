@@ -139,7 +139,7 @@ export default function CommentV() {
     seenIdsRef.current = new Set();
 
     // Initial fetch
-    fetch(`/api/messages?channel=${channelId}`)
+    fetch(`/api/messages?channel=${channelId}&_t=${Date.now()}`, { cache: "no-store" })
       .then((r) => r.json())
       .then((data) => {
         if (data.messages?.length) {
@@ -151,9 +151,9 @@ export default function CommentV() {
       })
       .catch(() => {});
 
-    // Poll every 1.5s
+    // Poll every 1s for real-time feel
     pollRef.current = setInterval(() => {
-      fetch(`/api/messages?channel=${channelId}&since=${lastTimeRef.current}`)
+      fetch(`/api/messages?channel=${channelId}&since=${lastTimeRef.current}&_t=${Date.now()}`, { cache: "no-store" })
         .then((r) => r.json())
         .then((data) => {
           if (data.messages?.length) {
@@ -169,7 +169,7 @@ export default function CommentV() {
           }
         })
         .catch(() => {});
-    }, 1500);
+    }, 1000);
   }, [username]);
 
   const stopPolling = useCallback(() => {
@@ -200,7 +200,7 @@ export default function CommentV() {
   const seedMessages = useCallback(async (channelId: string, region: Region) => {
     // Check if channel already has messages
     try {
-      const res = await fetch(`/api/messages?channel=${channelId}`);
+      const res = await fetch(`/api/messages?channel=${channelId}&_t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
       if (data.messages?.length > 0) return; // already seeded
     } catch {

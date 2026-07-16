@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { put, list } from "@vercel/blob";
+import { put, head } from "@vercel/blob";
+
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 interface ChatMessage {
   id: string;
@@ -11,10 +14,13 @@ interface ChatMessage {
 
 async function getMessages(channelId: string): Promise<ChatMessage[]> {
   try {
-    const { blobs } = await list({ prefix: `chat/${channelId}/` });
-    const msgBlob = blobs.find((b) => b.pathname === `chat/${channelId}/messages.json`);
-    if (!msgBlob) return [];
-    const res = await fetch(msgBlob.url + "?t=" + Date.now());
+    const blobPath = `chat/${channelId}/messages.json`;
+    // Use head() to check if blob exists and get its downloadUrl
+    const blob = await head(blobPath);
+    if (!blob) return [];
+    // Fetch with downloadUrl which bypasses CDN cache
+    const res = await fetch(blob.downloadUrl, { cache: "no-store" });
+    if (!res.ok) return [];
     return await res.json();
   } catch {
     return [];
@@ -22,7 +28,6 @@ async function getMessages(channelId: string): Promise<ChatMessage[]> {
 }
 
 async function saveMessages(channelId: string, messages: ChatMessage[]) {
-  // Keep only last 100 messages
   const trimmed = messages.slice(-100);
   await put(`chat/${channelId}/messages.json`, JSON.stringify(trimmed), {
     access: "public",
@@ -43,16 +48,20 @@ export async function GET(request: Request) {
   }
 
   const messages = await getMessages(channel);
-  const newMessages = since > 0 ? messages.filter((m) => m.time > since) : messages.slice(-30);
+  const newMessages = since > 0
+    ? messages.filter((m) => m.time > since)
+    : messages.slice(-30);
 
-  return NextResponse.json({
-    messages: newMessages,
-    count: messages.length,
-  }, {
-    headers: {
-      "Cache-Control": "no-cache, no-store, must-revalidate",
-    },
-  });
+  return NextResponse.json(
+    { messages: newMessages, count: messages.length },
+    {
+      headers: {
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        Pragma: "no-cache",
+        Expires: "0",
+      },
+    }
+  );
 }
 
 // POST - send a message

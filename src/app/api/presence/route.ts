@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { put, list } from "@vercel/blob";
+import { put, head } from "@vercel/blob";
+
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 interface Presence {
   [channelId: string]: { [userId: string]: number };
@@ -7,10 +10,10 @@ interface Presence {
 
 async function getPresence(): Promise<Presence> {
   try {
-    const { blobs } = await list({ prefix: "presence/" });
-    const blob = blobs.find((b) => b.pathname === "presence/active.json");
+    const blob = await head("presence/active.json");
     if (!blob) return {};
-    const res = await fetch(blob.url + "?t=" + Date.now());
+    const res = await fetch(blob.downloadUrl, { cache: "no-store" });
+    if (!res.ok) return {};
     return await res.json();
   } catch {
     return {};
@@ -26,7 +29,7 @@ async function savePresence(presence: Presence) {
   });
 }
 
-// POST - heartbeat (user is in channel)
+// POST - heartbeat
 export async function POST(request: Request) {
   try {
     const { channel, user } = await request.json();
@@ -38,19 +41,16 @@ export async function POST(request: Request) {
     if (!presence[channel]) presence[channel] = {};
     presence[channel][user] = Date.now();
 
-    // Clean stale users (no heartbeat in 15 seconds)
+    // Clean stale users (no heartbeat in 15s)
     const now = Date.now();
     for (const ch of Object.keys(presence)) {
       for (const u of Object.keys(presence[ch])) {
-        if (now - presence[ch][u] > 15000) {
-          delete presence[ch][u];
-        }
+        if (now - presence[ch][u] > 15000) delete presence[ch][u];
       }
       if (Object.keys(presence[ch]).length === 0) delete presence[ch];
     }
 
     await savePresence(presence);
-
     const count = Object.keys(presence[channel] || {}).length;
     return NextResponse.json({ count });
   } catch (error) {
