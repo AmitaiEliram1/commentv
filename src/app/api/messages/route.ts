@@ -10,6 +10,7 @@ interface ChatMessage {
   avatar: string;
   text: string;
   time: number;
+  replyTo?: { user: string; text: string };
 }
 
 async function getMessages(channelId: string): Promise<ChatMessage[]> {
@@ -68,7 +69,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { channel, user, avatar, text } = body;
+    const { channel, user, avatar, text, replyTo } = body;
 
     if (!channel || !user || !text) {
       return NextResponse.json({ error: "missing fields" }, { status: 400 });
@@ -82,6 +83,7 @@ export async function POST(request: Request) {
       avatar,
       text: text.slice(0, 500),
       time: Date.now(),
+      ...(replyTo ? { replyTo } : {}),
     };
 
     messages.push(newMsg);

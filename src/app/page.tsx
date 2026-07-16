@@ -10,6 +10,7 @@ interface Message {
   text: string;
   time: number;
   isMe?: boolean;
+  replyTo?: { user: string; text: string };
 }
 
 interface Channel {
@@ -109,6 +110,7 @@ export default function CommentV() {
   const [inputText, setInputText] = useState("");
   const [myAvatar] = useState(() => AVATARS[Math.floor(Math.random() * AVATARS.length)]);
   const [floatingEmojis, setFloatingEmojis] = useState<{ id: string; emoji: string; x: number }[]>([]);
+  const [replyingTo, setReplyingTo] = useState<{ user: string; text: string } | null>(null);
   const [liveCount, setLiveCount] = useState(0);
   const [totalComments, setTotalComments] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -244,7 +246,9 @@ export default function CommentV() {
   const sendMessage = async () => {
     if (!inputText.trim() || !activeChannel) return;
     const text = inputText.trim();
+    const reply = replyingTo ? { user: replyingTo.user, text: replyingTo.text } : undefined;
     setInputText("");
+    setReplyingTo(null);
     inputRef.current?.focus();
 
     // Optimistic local add
@@ -255,6 +259,7 @@ export default function CommentV() {
       text,
       time: Date.now(),
       isMe: true,
+      replyTo: reply,
     };
     seenIdsRef.current.add(localMsg.id);
     setMessages((prev) => [...prev.slice(-80), localMsg]);
@@ -270,12 +275,12 @@ export default function CommentV() {
           user: username,
           avatar: myAvatar,
           text,
+          replyTo: reply,
         }),
       });
       const data = await res.json();
       if (data.message) {
         seenIdsRef.current.add(data.message.id);
-        // Update the last time so we don't re-fetch our own message
         lastTimeRef.current = Math.max(lastTimeRef.current, data.message.time);
       }
     } catch {
@@ -531,29 +536,15 @@ export default function CommentV() {
             </div>
           )}
           {messages.map((msg) => (
-            <div
+            <SwipeMessage
               key={msg.id}
-              className={`flex gap-2.5 mb-3 animate-msg ${msg.isMe ? "flex-row-reverse" : ""}`}
-            >
-              <div className="text-xl flex-shrink-0 mt-0.5">{msg.avatar}</div>
-              <div className={`max-w-[75%] ${msg.isMe ? "items-end" : ""}`}>
-                <div className={`flex items-center gap-2 mb-0.5 ${msg.isMe ? "flex-row-reverse" : ""}`}>
-                  <span className={`text-xs font-semibold ${msg.isMe ? "text-accent" : "text-text-secondary"}`}>
-                    {msg.isMe ? "you" : msg.user}
-                  </span>
-                  <span className="text-[10px] text-text-muted">{timeAgo(msg.time)}</span>
-                </div>
-                <div
-                  className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed
-                    ${msg.isMe
-                      ? "bg-accent text-white rounded-tr-sm"
-                      : "bg-bg-card text-text-primary rounded-tl-sm"
-                    }`}
-                >
-                  {msg.text}
-                </div>
-              </div>
-            </div>
+              msg={msg}
+              timeAgo={timeAgo(msg.time)}
+              onReply={() => {
+                setReplyingTo({ user: msg.isMe ? "you" : msg.user, text: msg.text });
+                inputRef.current?.focus();
+              }}
+            />
           ))}
         </div>
 
@@ -571,6 +562,26 @@ export default function CommentV() {
           ))}
         </div>
 
+        {/* Reply Preview */}
+        {replyingTo && (
+          <div className="px-4 animate-slide-up">
+            <div className="flex items-center gap-2 bg-bg-card border-l-2 border-accent rounded-lg px-3 py-2 mb-1">
+              <div className="flex-1 min-w-0">
+                <div className="text-[10px] text-accent font-semibold">Replying to {replyingTo.user}</div>
+                <div className="text-xs text-text-secondary truncate">{replyingTo.text}</div>
+              </div>
+              <button
+                onClick={() => setReplyingTo(null)}
+                className="text-text-muted cursor-pointer flex-shrink-0"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Input */}
         <div className="px-4 pb-2 safe-bottom">
           <div className="flex gap-2 items-center">
@@ -580,7 +591,7 @@ export default function CommentV() {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              placeholder="Say something..."
+              placeholder={replyingTo ? `Reply to ${replyingTo.user}...` : "Say something..."}
               className="flex-1 px-4 py-3 bg-bg-card border border-border rounded-full text-sm text-text-primary placeholder:text-text-muted"
             />
             <button
@@ -748,6 +759,96 @@ export default function CommentV() {
       </div>
 
       <TabBar screen={screen} onNavigate={setScreen} />
+    </div>
+  );
+}
+
+// ─── SWIPE MESSAGE ───
+function SwipeMessage({ msg, timeAgo, onReply }: { msg: Message; timeAgo: string; onReply: () => void }) {
+  const [offsetX, setOffsetX] = useState(0);
+  const [swiping, setSwiping] = useState(false);
+  const startXRef = useRef(0);
+  const triggered = useRef(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    startXRef.current = e.touches[0].clientX;
+    triggered.current = false;
+    setSwiping(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!swiping) return;
+    const dx = e.touches[0].clientX - startXRef.current;
+    // Only allow right swipe, cap at 80px
+    const clamped = Math.max(0, Math.min(dx, 80));
+    setOffsetX(clamped);
+    if (clamped > 60 && !triggered.current) {
+      triggered.current = true;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setSwiping(false);
+    if (triggered.current) {
+      onReply();
+    }
+    setOffsetX(0);
+  };
+
+  return (
+    <div
+      className="relative mb-3 overflow-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Reply indicator behind */}
+      <div
+        className="absolute left-0 top-0 bottom-0 flex items-center pl-3 transition-opacity"
+        style={{ opacity: offsetX > 20 ? Math.min((offsetX - 20) / 40, 1) : 0 }}
+      >
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all
+          ${offsetX > 60 ? "bg-accent scale-110" : "bg-bg-card"}`}>
+          <svg className={`w-4 h-4 ${offsetX > 60 ? "text-white" : "text-text-muted"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Message */}
+      <div
+        className={`flex gap-2.5 animate-msg ${msg.isMe ? "flex-row-reverse" : ""}`}
+        style={{
+          transform: `translateX(${offsetX}px)`,
+          transition: swiping ? "none" : "transform 0.2s ease",
+        }}
+      >
+        <div className="text-xl flex-shrink-0 mt-0.5">{msg.avatar}</div>
+        <div className={`max-w-[75%] ${msg.isMe ? "items-end" : ""}`}>
+          <div className={`flex items-center gap-2 mb-0.5 ${msg.isMe ? "flex-row-reverse" : ""}`}>
+            <span className={`text-xs font-semibold ${msg.isMe ? "text-accent" : "text-text-secondary"}`}>
+              {msg.isMe ? "you" : msg.user}
+            </span>
+            <span className="text-[10px] text-text-muted">{timeAgo}</span>
+          </div>
+          {/* Reply quote */}
+          {msg.replyTo && (
+            <div className={`border-l-2 border-accent/50 pl-2 mb-1 ${msg.isMe ? "ml-auto" : ""}`}>
+              <div className="text-[10px] text-accent/70 font-semibold">{msg.replyTo.user}</div>
+              <div className="text-[11px] text-text-muted truncate max-w-[200px]">{msg.replyTo.text}</div>
+            </div>
+          )}
+          <div
+            className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed
+              ${msg.isMe
+                ? "bg-accent text-white rounded-tr-sm"
+                : "bg-bg-card text-text-primary rounded-tl-sm"
+              }`}
+          >
+            {msg.text}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
