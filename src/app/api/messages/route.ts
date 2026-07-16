@@ -7,7 +7,8 @@ export const fetchCache = "force-no-store";
 interface ChatMessage {
   id: string;
   user: string;
-  avatar: string;
+  avatar?: string;
+  color?: string;
   text: string;
   time: number;
   replyTo?: { user: string; text: string };
@@ -69,7 +70,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { channel, user, avatar, text, replyTo } = body;
+    const { channel, user, avatar, color, text, replyTo } = body;
 
     if (!channel || !user || !text) {
       return NextResponse.json({ error: "missing fields" }, { status: 400 });
@@ -80,7 +81,8 @@ export async function POST(request: Request) {
     const newMsg: ChatMessage = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       user,
-      avatar,
+      ...(avatar ? { avatar } : {}),
+      ...(color ? { color } : {}),
       text: text.slice(0, 500),
       time: Date.now(),
       ...(replyTo ? { replyTo } : {}),
